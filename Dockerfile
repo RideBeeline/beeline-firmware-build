@@ -7,7 +7,7 @@ RUN apt-key update && \
     add-apt-repository -y ppa:team-gcc-arm-embedded/ppa && \
     sh -c 'curl -sL https://deb.nodesource.com/setup_6.x | bash -' && \
     apt-get update && \
-    apt-get install -y curl git unzip build-essential gcc-arm-embedded libssl-dev srecord openocd pkg-config nodejs s3cmd python && \
+    apt-get install -y curl git unzip build-essential gcc-arm-embedded=6-2016q4-1~xenial1 libssl-dev srecord openocd pkg-config nodejs s3cmd python && \
     apt-get clean all
 
 # NRF51 SDK v10
