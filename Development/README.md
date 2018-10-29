@@ -19,7 +19,7 @@ docker build -t beeline-firmware-img beeline-firmware-build
 
 Now build the development image. It will be called *beeline-firmware-dev*
 ```
-docker build -t beeline-firmware-dev beeline-firmware-build/Development
+docker build -t beeline-firmware-dev Development
 ```
 
 # Usage

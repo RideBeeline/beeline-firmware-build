@@ -17,10 +17,5 @@ RUN apt-get install -y nodejs
 #  see https://www.npmjs.com/package/canvas
 RUN apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 
-#install nan
- # see https://github.com/kelektiv/node.bcrypt.js/issues/428
-
-
-RUN cd /beeline/tools/svg2bin && rm -rf node-modules && npm install nan && npm install
 
 
