@@ -1,10 +1,11 @@
-FROM ubuntu:16.04
-MAINTAINER Chetan Padia <chet@beeline.co>
+FROM ubuntu:20.04
+MAINTAINER Charlie Bruce <charlie@beeline.co>
 
-RUN apt-key update && \
-    sh -c 'curl -sL https://deb.nodesource.com/setup_6.x | bash -' && \
-    apt-get update && \
-    apt-get install -y curl git unzip bzip2 build-essential gcc-multilib libssl-dev srecord openocd pkg-config nodejs s3cmd python && \
+# tzdata presents an interactive prompt to set time zone.
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y curl git unzip bzip2 build-essential libssl-dev srecord pkg-config lib32z1 && \
     apt-get clean all
 
 # NRF51 SDK v10
@@ -17,3 +18,13 @@ RUN curl -L -o /opt/gcc-arm-none-eabi-5.tar.bz2 https://launchpad.net/gcc-arm-em
     rm /opt/gcc-arm-none-eabi-5.tar.bz2 && \
     ln -s /opt/gcc-arm-none-eabi-5_4-2016q2 /opt/gcc-arm-none-eabi-5
 ENV PATH="${PATH}:/opt/gcc-arm-none-eabi-5/bin"
+
+# Python3
+RUN apt-get update && apt-get install -y python3 python3-pip
+
+RUN pip3 install nrfutil
+
+# OpenCV and dependencies
+RUN apt-get install -y libgl1
+RUN pip3 install opencv-python
+
