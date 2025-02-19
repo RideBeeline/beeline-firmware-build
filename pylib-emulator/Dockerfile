@@ -1,11 +1,13 @@
-FROM python:3.10.13-bullseye
+# bullseye is the latest stable release of debian
+FROM python:3.13.2-bullseye
 
 RUN apt-get -y upgrade
 
 # avoid stuck build due to user prompt
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -y && apt-get -y install build-essential srecord
+# install mingw-w64 cross-compiler 
+RUN apt-get update -y && apt-get -y install mingw-w64 build-essential srecord git
 
 WORKDIR /home
 
