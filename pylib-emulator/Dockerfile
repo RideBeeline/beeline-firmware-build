@@ -6,7 +6,7 @@ RUN apt-get -y upgrade
 # avoid stuck build due to user prompt
 ARG DEBIAN_FRONTEND=noninteractive
 
-# install mingw-w64 cross-compiler 
+# install mingw-w64 cross-compiler so we can build windows binaries too
 RUN apt-get update -y && apt-get -y install mingw-w64 build-essential srecord git
 
 WORKDIR /home
