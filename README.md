@@ -13,3 +13,7 @@ On Mac, for a multi architecture build:
 docker buildx create --use
 docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/ridebeeline/fw-pylib-emulator:py313 --push .
 ```
+
+```
+cd ncs
+docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/ridebeeline/ncs-build:v3.1.1.a --push .
