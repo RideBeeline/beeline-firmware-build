@@ -46,10 +46,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV VIRTUAL_ENV=/opt/venv
 
 
+COPY requirements-bcore.txt /home/requirements-bcore.txt
+RUN CC=gcc-9 CXX=g++-9 FC=gfortran-9 uv pip install -r /home/requirements-bcore.txt
 
-RUN CC=gcc-9 CXX=g++-9 FC=gfortran-9 uv pip install \
-    numpy \
-    opencv-python
 
 # Clean up unnecessary build tools to reduce image size
 RUN apt-get purge -y \

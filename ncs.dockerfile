@@ -35,6 +35,8 @@ RUN apt-get update -y && \
         libbz2-dev \
         libreadline-dev \
         libsqlite3-dev \
+        libgl1 \
+        libglib2.0-0 \
         gcc \
         libncursesw5-dev \
         xz-utils \
@@ -74,6 +76,10 @@ RUN uv venv /opt/venv --python 3.13.9
 ENV PATH="/opt/venv/bin:$PATH"
 # Set VIRTUAL_ENV so 'uv' knows to use this environment automatically
 ENV VIRTUAL_ENV=/opt/venv
+
+COPY requirements-bcore.txt /home/requirements-bcore.txt
+RUN uv pip install -r /home/requirements-bcore.txt
+
 # Install pip packages needed for building nRF Connect SDK
 RUN uv pip install \
     anytree \

@@ -1,0 +1,15 @@
+#from honeypy's pyproject requirements
+numpy
+pytest
+pytest-benchmark
+PyGithub
+boto3
+GitPython
+matplotlib
+commentjson
+geographiclib
+polyline
+google
+protobuf
+opencv-python
+sympy

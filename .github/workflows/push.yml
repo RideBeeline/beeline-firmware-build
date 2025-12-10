@@ -18,10 +18,10 @@ jobs:
       matrix:
         name:
           - ncs
-          - nrf5-15-2
-          - nrf5-17-1
-          # - embedded-gcc
-          # - pylib-emulator
+          - nrf5sdk-15
+          - nrf5sdk-17
+          - embedded-gcc
+          - pylib-emulator
     permissions:
       contents: read
       packages: write
@@ -47,7 +47,7 @@ jobs:
         id: meta
         run: |
           set -euo pipefail
-          dockerfile="${{ matrix.name }}/Dockerfile"
+          dockerfile="${{ matrix.name }}.dockerfile"
           if [[ ! -f "$dockerfile" ]]; then
             echo "Dockerfile not found at $dockerfile" >&2
             exit 1
@@ -69,9 +69,10 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.name }}
+          context: .
           push: true
           tags: ${{ steps.meta.outputs.docker_tag }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          file: ./${{ matrix.name }}.dockerfile

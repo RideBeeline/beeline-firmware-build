@@ -6,7 +6,7 @@ ARG TOOLCHAIN_VERSION=17.1.0
 ARG PYTHON_VERSION=3.13.9
 
 RUN apt-get update && \
-apt-get install -y libgl1 && \
+apt-get install -y libgl1 libglib2.0-0 && \
 apt-get clean
 
 # Install uv and python 
@@ -27,6 +27,5 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Set VIRTUAL_ENV so 'uv' knows to use this environment automatically
 ENV VIRTUAL_ENV=/opt/venv
 
-RUN uv pip install \
-    numpy \
-    opencv-python
+COPY requirements-bcore.txt /home/requirements-bcore.txt
+RUN uv pip install -r /home/requirements-bcore.txt
