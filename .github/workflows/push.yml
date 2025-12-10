@@ -2,12 +2,26 @@ name: Publish Docker image
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to build (branch, tag, SHA)'
+        required: false
+        default: 'main'
   release:
     types: [published]
 
 jobs:
-  build-and-push-ncs:
+  build-and-push:
+    name: Build ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        name:
+          - ncs
+          - nrf5sdk-15
+          - nrf5sdk-17
+          - embedded-gcc
+          - pylib-emulator
     permissions:
       contents: read
       packages: write
@@ -29,12 +43,36 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Derive image tag
+        id: meta
+        run: |
+          set -euo pipefail
+          dockerfile="${{ matrix.name }}.dockerfile"
+          if [[ ! -f "$dockerfile" ]]; then
+            echo "Dockerfile not found at $dockerfile" >&2
+            exit 1
+          fi
+
+          version=$(grep -E "^ARG TOOLCHAIN_VERSION=" "$dockerfile" | head -n1 | cut -d= -f2- || true)
+
+          version=$(printf '%s' "$version" | tr -d ' \t\r\n')
+
+          if [[ -z "$version" ]]; then
+            echo "TOOLCHAIN_VERSION ARG missing in $dockerfile" >&2
+            exit 1
+          fi
+
+          docker_tag=ghcr.io/ridebeeline/fw-build-${{ matrix.name }}:"$version-${GITHUB_REF_NAME}"
+          echo "docker_tag=${docker_tag}" >> "$GITHUB_OUTPUT"
+          echo "Derived Docker tag: $docker_tag"
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./ncs
+          context: .
           push: true
-          tags: ghcr.io/ridebeeline/ncs-build:v3.1.1.a
+          tags: ${{ steps.meta.outputs.docker_tag }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          file: ./${{ matrix.name }}.dockerfile

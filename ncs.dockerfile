@@ -1,9 +1,11 @@
 FROM ubuntu:22.04 AS base
 WORKDIR /workdir
 
+# Toolchain version argument is required for CI build system tagging
+ARG TOOLCHAIN_VERSION=v3.1.1
 
-ARG NCS_VERSION=v3.1.1
 ARG TARGETARCH
+ARG NCS_VERSION=${TOOLCHAIN_VERSION}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -33,6 +35,8 @@ RUN apt-get update -y && \
         libbz2-dev \
         libreadline-dev \
         libsqlite3-dev \
+        libgl1 \
+        libglib2.0-0 \
         gcc \
         libncursesw5-dev \
         xz-utils \
@@ -72,6 +76,10 @@ RUN uv venv /opt/venv --python 3.13.9
 ENV PATH="/opt/venv/bin:$PATH"
 # Set VIRTUAL_ENV so 'uv' knows to use this environment automatically
 ENV VIRTUAL_ENV=/opt/venv
+
+COPY requirements-bcore.txt /home/requirements-bcore.txt
+RUN uv pip install -r /home/requirements-bcore.txt
+
 # Install pip packages needed for building nRF Connect SDK
 RUN uv pip install \
     anytree \
