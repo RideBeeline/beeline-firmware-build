@@ -1,7 +1,7 @@
 FROM ubuntu:22.04 AS base
 WORKDIR /workdir
 
-
+# Toolchain version argument is required for CI build system tagging
 ARG TOOLCHAIN_VERSION=v3.1.1
 
 ARG TARGETARCH

@@ -19,7 +19,7 @@ jobs:
         name:
           - ncs
           - nrf5-15-2
-          # - nrf5-17-1
+          - nrf5-17-1
           # - embedded-gcc
           # - pylib-emulator
     permissions:
@@ -43,7 +43,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Derive image tags
+      - name: Derive image tag
         id: meta
         run: |
           set -euo pipefail
@@ -62,14 +62,16 @@ jobs:
             exit 1
           fi
 
-          echo "docker_tag=${version}-${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          docker_tag=ghcr.io/ridebeeline/fw-build-${{ matrix.name }}:"$version-${GITHUB_REF_NAME}"
+          echo "docker_tag=${docker_tag}" >> "$GITHUB_OUTPUT"
+          echo "Derived Docker tag: $docker_tag"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./${{ matrix.name }}
+          context: ${{ matrix.name }}
           push: true
-          tags: ghcr.io/ridebeeline/fw-build-${{ matrix.name }}:${{ steps.meta.outputs.docker_tag }}
+          tags: ${{ steps.meta.outputs.docker_tag }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max

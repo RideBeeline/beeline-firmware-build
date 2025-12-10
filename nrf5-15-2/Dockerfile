@@ -1,7 +1,9 @@
 FROM ghcr.io/charliebruce/nrf5-docker-build:sdk-15.2.0
 
+# Toolchain version argument is required for CI build system tagging
 ARG TOOLCHAIN_VERSION=15.2.0
 
+ARG PYTHON_VERSION=3.13.9
 
 
 # Temporarily install GCC 9 from the Ubuntu toolchain PPA so numpy can compile
@@ -29,17 +31,15 @@ RUN apt-get update && \
 # Download the latest installer
 ADD https://astral.sh/uv/0.9.10/install.sh /uv-installer.sh
 
-
 # Run the installer then remove it
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
 # Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin/:$PATH"
 
-# We use Python 3.13 everywhere else but there are no numpy wheels for 3.13 and compiling from source 
-RUN uv python install 3.13.9
+RUN uv python install ${PYTHON_VERSION}
 # Create a virtual environment at /opt/venv using the installed Python
-RUN uv venv /opt/venv --python 3.13.9
+RUN uv venv /opt/venv --python ${PYTHON_VERSION}
 # Add the virtual environment to the PATH so 'python' and 'pip' work globally
 ENV PATH="/opt/venv/bin:$PATH"
 # Set VIRTUAL_ENV so 'uv' knows to use this environment automatically
