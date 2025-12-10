@@ -17,3 +17,12 @@ docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/ridebeeline/fw
 ```
 cd ncs
 docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/ridebeeline/ncs-build:v3.1.1.a --push .
+
+## Local testing
+
+From the directory containing the Dockerfile - eg cd nrf5-17-1, run:
+
+```
+docker buildx build --platform linux/arm64 --load -t bl-fw-local-nrf5-17-1 .
+```
+NB: can only use one platform at a time
