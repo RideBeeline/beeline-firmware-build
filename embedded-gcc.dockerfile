@@ -53,19 +53,10 @@ ADD https://astral.sh/uv/0.9.10/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 ENV PATH="/root/.local/bin/:$PATH"
 
-# Create a virtual environment at /opt/venv with the desired Python version
 RUN uv python install $PYTHON_VERSION
-RUN uv venv /opt/venv --python $PYTHON_VERSION
 
-# Add the virtual environment to the PATH so 'python' and 'pip' work globally
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Make this the default uv environment globally and for all projects
-ENV VIRTUAL_ENV=/opt/venv
-ENV UV_PROJECT_ENVIRONMENT=/opt/venv
-
-#
-# Install required python packages
-#
-COPY requirements-buildpy.txt .
-RUN uv pip install -r requirements-buildpy.txt
+# Make this the default uv environment globally and for all projects to be /home/venv 
+# This will be the mount point for the venv named volume
+ENV VIRTUAL_ENV=/home/venv
+ENV UV_PROJECT_ENVIRONMENT=/home/venv
+ENV UV_LINK_MODE=copy

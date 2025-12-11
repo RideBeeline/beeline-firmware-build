@@ -56,23 +56,3 @@ ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 COPY requirements-buildpy.txt .
 RUN CC=gcc-9 CXX=g++-9 FC=gfortran-9 uv pip install -r requirements-buildpy.txt
 
-
-# Clean up unnecessary build tools to reduce image size
-RUN apt-get purge -y \
-    gcc-9 \
-    g++-9 \
-    gfortran-9 \
-    ninja-build \
-    pkg-config \
-    libopenblas-dev \
-    software-properties-common && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        libgl1 \
-        libglib2.0-0 && \
-    rm -rf /var/lib/apt/lists/*
-
