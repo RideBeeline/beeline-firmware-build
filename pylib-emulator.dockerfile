@@ -2,7 +2,7 @@
 FROM debian:bookworm-slim
 
 # Toolchain version argument is required for CI build system tagging
-ARG TOOLCHAIN_VERSION=python-version
+ARG TOOLCHAIN_VERSION=use-desired-python-version
 
 ARG DESIRED_PYTHON_VERSION
 ENV PYTHON_VERSION=${DESIRED_PYTHON_VERSION}
@@ -48,7 +48,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV VIRTUAL_ENV=/opt/venv
 ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 
+#
 # Install required python packages
+#
 COPY requirements-buildpy.txt .
 RUN uv pip install -r requirements-buildpy.txt
 

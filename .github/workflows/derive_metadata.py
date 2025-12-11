@@ -27,11 +27,16 @@ def main() -> int:
         print(f"TOOLCHAIN_VERSION ARG missing in {dockerfile_path}", file=sys.stderr)
         return 1
     
-    if version == "DESIRED_PYTHON_VERSION":
-        # read from the requirements.python-version file from the same directory as the Dockerfile
-        version_file = dockerfile_path.parent / "requirements.python-version"
-        with version_file.open(encoding="utf-8") as vf:
-            version = vf.read().strip()
+    desired_python_version_file = dockerfile_path.parent / "requirements.python-version"
+    desired_python_version = None
+    with desired_python_version_file.open(encoding="utf-8") as vf:
+        desired_python_version = vf.read().strip()
+
+    assert desired_python_version is not None, "Desired Python version could not be determined."
+    print(f"Derived python version: {desired_python_version}")
+
+    if version == "use-desired-python-version":
+        version = desired_python_version
         
 
     docker_tag = f"ghcr.io/ridebeeline/fw-build-{args.name}:{version}-{args.ref_name.replace('/', '_')}"
@@ -44,6 +49,7 @@ def main() -> int:
 
     with open(github_output, "a", encoding="utf-8") as output_file:
         output_file.write(f"docker_tag={docker_tag}\n")
+        output_file.write(f"python_version={desired_python_version}\n")
 
     return 0
 

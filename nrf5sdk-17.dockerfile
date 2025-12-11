@@ -3,29 +3,37 @@ FROM ghcr.io/charliebruce/nrf5-docker-build:sdk-17.1.0
 # Toolchain version argument is required for CI build system tagging
 ARG TOOLCHAIN_VERSION=17.1.0
 
-ARG PYTHON_VERSION=3.13.9
+ARG DESIRED_PYTHON_VERSION
+ENV PYTHON_VERSION=${DESIRED_PYTHON_VERSION}
 
 RUN apt-get update && \
 apt-get install -y libgl1 libglib2.0-0 && \
 apt-get clean
 
-# Install uv and python 
-# Download the latest installer
+#
+# Install required Python using uv (https://astral.sh/uv/)
+#
+WORKDIR /home
+
+# Download installer, run it, then remove it
 ADD https://astral.sh/uv/0.9.10/install.sh /uv-installer.sh
-
-# Run the installer then remove it
 RUN sh /uv-installer.sh && rm /uv-installer.sh
-
-# Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin/:$PATH"
 
-RUN uv python install ${PYTHON_VERSION}
-# Create a virtual environment at /opt/venv using the installed Python
-RUN uv venv /opt/venv --python ${PYTHON_VERSION}
+# Create a virtual environment at /opt/venv with the desired Python version
+RUN uv python install $PYTHON_VERSION
+RUN uv venv /opt/venv --python $PYTHON_VERSION
+
 # Add the virtual environment to the PATH so 'python' and 'pip' work globally
 ENV PATH="/opt/venv/bin:$PATH"
-# Set VIRTUAL_ENV so 'uv' knows to use this environment automatically
-ENV VIRTUAL_ENV=/opt/venv
 
-COPY requirements-bcore.txt /home/requirements-bcore.txt
-RUN uv pip install -r /home/requirements-bcore.txt
+# Make this the default uv environment globally and for all projects
+ENV VIRTUAL_ENV=/opt/venv
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv
+
+#
+# Install required python packages
+#
+COPY requirements-buildpy.txt .
+RUN uv pip install -r requirements-buildpy.txt
+

@@ -7,6 +7,9 @@ ARG TOOLCHAIN_VERSION=v3.1.1
 ARG TARGETARCH
 ARG NCS_VERSION=${TOOLCHAIN_VERSION}
 
+ARG DESIRED_PYTHON_VERSION
+ENV PYTHON_VERSION=${DESIRED_PYTHON_VERSION}
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Make sure shell commands fail the build if something goes wrong
@@ -58,27 +61,34 @@ ENV LC_ALL=en_US.UTF-8
 
 # --- PYTHON INSTALLATION AND SETUP ---
 
-# Install uv and python 
-# Download the latest installer
+#
+# Install required Python using uv (https://astral.sh/uv/)
+#
+WORKDIR /home
+
+# Download installer, run it, then remove it
 ADD https://astral.sh/uv/0.9.10/install.sh /uv-installer.sh
-
-
-# Run the installer then remove it
 RUN sh /uv-installer.sh && rm /uv-installer.sh
-
-# Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin/:$PATH"
 
-RUN uv python install 3.13.9
-# Create a virtual environment at /opt/venv using the installed Python
-RUN uv venv /opt/venv --python 3.13.9
+# Create a virtual environment at /opt/venv with the desired Python version
+RUN uv python install $PYTHON_VERSION
+RUN uv venv /opt/venv --python $PYTHON_VERSION
+
 # Add the virtual environment to the PATH so 'python' and 'pip' work globally
 ENV PATH="/opt/venv/bin:$PATH"
-# Set VIRTUAL_ENV so 'uv' knows to use this environment automatically
-ENV VIRTUAL_ENV=/opt/venv
 
-COPY requirements-bcore.txt /home/requirements-bcore.txt
-RUN uv pip install -r /home/requirements-bcore.txt
+# Make this the default uv environment globally and for all projects
+ENV VIRTUAL_ENV=/opt/venv
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv
+
+#
+# Install required python packages
+#
+COPY requirements-buildpy.txt .
+RUN uv pip install -r requirements-buildpy.txt
+
+
 
 # Install pip packages needed for building nRF Connect SDK
 RUN uv pip install \
