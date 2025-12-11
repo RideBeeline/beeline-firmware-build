@@ -1,6 +1,9 @@
-name: Publish Docker image
+name: Build and Publish Docker image
 
 on:
+  push:
+    branches:
+      - '**'
   workflow_dispatch:
     inputs:
       ref:
@@ -51,7 +54,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
+          # Only push to registry on published releases
+          push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
           build-args: DESIRED_PYTHON_VERSION=${{ steps.meta.outputs.python_version }}
           tags: ${{ steps.meta.outputs.docker_tag }}
           platforms: linux/amd64,linux/arm64

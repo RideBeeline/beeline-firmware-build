@@ -21,3 +21,7 @@ docker buildx build --platform linux/arm64 --load --build-arg DESIRED_PYTHON_VER
 To run and load fw repo:
 ```
 docker run --rm -it -v "/Users/mark/Beeline/fw/beeline-firmware-nrf":/beeline -v venv:/beeline/.venv -w /beeline bl-fw-local-pylib-emu bash
+
+## CI and publish
+The workflow will run on every push but will only upload to the registery on releases. So make a release in GH!
+
