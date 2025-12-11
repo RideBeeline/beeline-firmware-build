@@ -1,9 +1,6 @@
 name: Build and Publish Docker image
 
 on:
-  push:
-    branches:
-      - '**'
   workflow_dispatch:
     inputs:
       ref:
