@@ -80,14 +80,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Make this the default uv environment globally and for all projects
 ENV VIRTUAL_ENV=/opt/venv
-ENV UV_PROJECT_ENVIRONMENT=/opt/venv
-
-#
-# Install required python packages
-#
-COPY requirements-buildpy.txt .
-RUN uv pip install -r requirements-buildpy.txt
-
 
 
 # Install pip packages needed for building nRF Connect SDK
@@ -156,7 +148,13 @@ ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 ENV ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk-${ZEPHYR_SDK_VERSION}
 
 WORKDIR /workdir
- 
+
+#
+# Now we set the default uv project environment to home/venv which will be the named volume mount point
+#
+ENV UV_PROJECT_ENVIRONMENT=/home/venv
+ENV UV_LINK_MODE=copy
+
 
 
 

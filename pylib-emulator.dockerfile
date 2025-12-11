@@ -26,7 +26,6 @@ RUN apt-get update -y && apt-get -y install \
     libglib2.0-0 \
     && apt-get clean
 
-
 #
 # Install required Python using uv (https://astral.sh/uv/)
 #
@@ -37,22 +36,11 @@ ADD https://astral.sh/uv/0.9.10/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 ENV PATH="/root/.local/bin/:$PATH"
 
-
 RUN uv python install $PYTHON_VERSION
 
-
-# Make this the default uv environment globally and for all projects
+# Make this the default uv environment globally and for all projects to be /home/venv 
+# This will be the mount point for the venv named volume
 ENV VIRTUAL_ENV=/home/venv
 ENV UV_PROJECT_ENVIRONMENT=/home/venv
 ENV UV_LINK_MODE=copy
-
-# #
-# # Install required python packages
-# #
-
-# COPY requirements-buildpy.txt .
-# RUN uv pip install -r requirements-buildpy.txt
-
-# COPY requirements-honeypy.txt .
-# RUN uv pip install -r requirements-honeypy.txt
 
