@@ -81,6 +81,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Make this the default uv environment globally and for all projects
 ENV VIRTUAL_ENV=/opt/venv
 
+# Set sensible defaults 
+ENV UV_NO_PROGRESS=1
+ENV UV_NO_DEV=1
+ENV UV_LOCKED=1
 
 # Install pip packages needed for building nRF Connect SDK
 RUN uv pip install \

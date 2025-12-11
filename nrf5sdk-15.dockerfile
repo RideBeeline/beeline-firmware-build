@@ -50,6 +50,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 ENV VIRTUAL_ENV=/opt/venv
 ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 
+# Set sensible defaults 
+ENV UV_NO_PROGRESS=1
+ENV UV_NO_DEV=1
+ENV UV_LOCKED=1
+
 #
 # Install required python packages
 #

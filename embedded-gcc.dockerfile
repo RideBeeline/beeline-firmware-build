@@ -60,3 +60,8 @@ RUN uv python install $PYTHON_VERSION
 ENV VIRTUAL_ENV=/home/venv
 ENV UV_PROJECT_ENVIRONMENT=/home/venv
 ENV UV_LINK_MODE=copy
+
+# Set sensible defaults 
+ENV UV_NO_PROGRESS=1
+ENV UV_NO_DEV=1
+ENV UV_LOCKED=1
