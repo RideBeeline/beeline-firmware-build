@@ -1,4 +1,4 @@
-name: Build and Publish Docker image
+name: Build and Publish Docker images
 
 on:
   workflow_dispatch:
@@ -51,7 +51,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          # Only push to registry on published releases
           push: true
           build-args: DESIRED_PYTHON_VERSION=${{ steps.meta.outputs.python_version }}
           tags: ${{ steps.meta.outputs.docker_tag }}
