@@ -45,27 +45,8 @@ jobs:
 
       - name: Derive image tag
         id: meta
-        run: |
-          set -euo pipefail
-          dockerfile="${{ matrix.name }}.dockerfile"
-          if [[ ! -f "$dockerfile" ]]; then
-            echo "Dockerfile not found at $dockerfile" >&2
-            exit 1
-          fi
-
-          version=$(grep -E "^ARG TOOLCHAIN_VERSION=" "$dockerfile" | head -n1 | cut -d= -f2- || true)
-
-          version=$(printf '%s' "$version" | tr -d ' \t\r\n')
-
-          if [[ -z "$version" ]]; then
-            echo "TOOLCHAIN_VERSION ARG missing in $dockerfile" >&2
-            exit 1
-          fi
-
-          docker_tag=ghcr.io/ridebeeline/fw-build-${{ matrix.name }}:"$version-${GITHUB_REF_NAME}"
-          echo "docker_tag=${docker_tag}" >> "$GITHUB_OUTPUT"
-          echo "Derived Docker tag: $docker_tag"
-
+        run: python3 .github/workflows/scripts/derive_image_tag.py --name "${{ matrix.name }}" --ref-name ${GITHUB_REF_NAME}
+  
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
