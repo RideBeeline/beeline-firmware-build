@@ -16,7 +16,7 @@ apt-get clean
 WORKDIR /home
 
 # Download installer, run it, then remove it
-ADD https://astral.sh/uv/0.9.10/install.sh /uv-installer.sh
+ADD https://astral.sh/uv/0.9.26/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 ENV PATH="/root/.local/bin/:$PATH"
 
