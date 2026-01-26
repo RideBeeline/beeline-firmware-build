@@ -14,7 +14,7 @@ ENV PYTHON_VERSION=${DESIRED_PYTHON_VERSION}
 
 # Download tools and prerequisites
 RUN apt-get update && \
-apt-get install -y curl git unzip bzip2 build-essential srecord pkg-config libusb-1.0.0 && \
+apt-get install -y curl git unzip bzip2 build-essential srecord pkg-config libusb-1.0.0 cmake && \
 apt-get clean all 
 
 # Download and install the toolchain

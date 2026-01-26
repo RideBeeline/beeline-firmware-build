@@ -24,6 +24,7 @@ RUN apt-get update -y && apt-get -y install \
     curl \
     libgl1 \
     libglib2.0-0 \
+    cmake \
     && apt-get clean
 
 #

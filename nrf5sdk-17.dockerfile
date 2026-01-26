@@ -7,7 +7,7 @@ ARG DESIRED_PYTHON_VERSION
 ENV PYTHON_VERSION=${DESIRED_PYTHON_VERSION}
 
 RUN apt-get update && \
-apt-get install -y libgl1 libglib2.0-0 && \
+apt-get install -y libgl1 libglib2.0-0 cmake && \
 apt-get clean
 
 #
