@@ -25,8 +25,24 @@ RUN apt-get update -y && apt-get -y install \
     libgl1 \
     libglib2.0-0 \
     cmake \
-    clang-format \
-    clang-tidy \
+    && apt-get clean
+
+# Install clang-tidy and clang-format from LLVM apt repos
+ARG LLVM_VERSION=19
+RUN apt-get update -y && apt-get -y install \
+    lsb-release \
+    software-properties-common \
+    gnupg \
+    && curl -fsSL https://apt.llvm.org/llvm.sh -o /tmp/llvm.sh \
+    && chmod +x /tmp/llvm.sh \
+    && /tmp/llvm.sh ${LLVM_VERSION} \
+    && apt-get -y install clang-format-${LLVM_VERSION} clang-tidy-${LLVM_VERSION} \
+    && ln -sf /usr/bin/clang-format-${LLVM_VERSION} /usr/bin/clang-format \
+    && ln -sf /usr/bin/clang-tidy-${LLVM_VERSION} /usr/bin/clang-tidy \
+    && ln -sf /usr/bin/run-clang-tidy-${LLVM_VERSION} /usr/bin/run-clang-tidy \
+    && rm /tmp/llvm.sh \
+    && apt-get -y purge lsb-release software-properties-common \
+    && apt-get -y autoremove \
     && apt-get clean
 
 #
