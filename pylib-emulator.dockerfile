@@ -25,6 +25,8 @@ RUN apt-get update -y && apt-get -y install \
     libgl1 \
     libglib2.0-0 \
     cmake \
+    clang-format \
+    clang-tidy \
     && apt-get clean
 
 #
