@@ -28,7 +28,7 @@ RUN apt-get update -y && apt-get -y install \
     && apt-get clean
 
 # Install clang-tidy and clang-format from LLVM apt repos
-ARG LLVM_VERSION=19
+ARG LLVM_VERSION=21
 RUN apt-get update -y && apt-get -y install \
     lsb-release \
     software-properties-common \
