@@ -2,7 +2,7 @@ FROM ubuntu:22.04 AS base
 WORKDIR /workdir
 
 # Toolchain version argument is required for CI build system tagging
-ARG TOOLCHAIN_VERSION=v3.1.1
+ARG TOOLCHAIN_VERSION=v3.2.3
 
 ARG TARGETARCH
 ARG NCS_VERSION=${TOOLCHAIN_VERSION}
@@ -107,12 +107,13 @@ RUN uv pip install \
 
 # --- ZEPHYR SDK INSTALLATION ---
 # This replaces the "Nordic Toolchain Manager". 
-# NCS v3.1.1 requires Zephyr SDK 0.17.0. You can find a table at
-# https://docs.nordicsemi.com/bundle/ncs-3.1.1/page/nrf/installation/recommended_versions.html
+# NCS v3.2.3 requires Zephyr SDK 0.17.0. You can find a table at
+# https://docs.nordicsemi.com/bundle/ncs-3.2.3/page/nrf/installation/recommended_versions.html
+
 
 # Validate that NCS version is supported
-RUN if [ "$NCS_VERSION" != "v3.1.1" ]; then \
-    echo "Error: This Dockerfile only supports NCS_VERSION=v3.1.1, got: $NCS_VERSION" >&2 && \
+RUN if [ "$NCS_VERSION" != "v3.2.3" ]; then \
+    echo "Error: This Dockerfile only supports NCS_VERSION=v3.2.3, got: $NCS_VERSION" >&2 && \
     exit 1; \
     fi
 
