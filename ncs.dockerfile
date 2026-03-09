@@ -2,7 +2,7 @@ FROM ubuntu:22.04 AS base
 WORKDIR /workdir
 
 # Toolchain version argument is required for CI build system tagging
-ARG TOOLCHAIN_VERSION=v3.2.3
+ARG TOOLCHAIN_VERSION=v3.3.0-preview2
 
 ARG TARGETARCH
 ARG NCS_VERSION=${TOOLCHAIN_VERSION}
@@ -16,11 +16,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL [ "/bin/bash", "-euxo", "pipefail", "-c" ]
 
 # You can find a table at
-# https://docs.nordicsemi.com/bundle/ncs-3.2.3/page/nrf/installation/recommended_versions.html
-# NCS v3.2.3 requires Zephyr SDK 0.17.0.
+# https://docs.nordicsemi.com/bundle/ncs-3.3.0-preview2/page/nrf/installation/recommended_versions.html
+# NCS v3.3.0-preview2 requires Zephyr SDK 0.17.0.
 
 ARG ZEPHYR_SDK_VERSION=0.17.0
-ARG CMAKE_VERSION=3.21.0
+ARG CMAKE_VERSION=4.2.1
 
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
