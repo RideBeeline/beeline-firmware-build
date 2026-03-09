@@ -12,6 +12,10 @@ on:
       - main
   release:
     types: [created]
+  pull_request:
+    branches:
+      - main
+    
 
 jobs:
   build-and-push:
@@ -58,6 +62,6 @@ jobs:
           build-args: DESIRED_PYTHON_VERSION=${{ steps.meta.outputs.python_version }}
           tags: ${{ steps.meta.outputs.docker_tag }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,scope=${{ matrix.name }},mode=max
           file: ./${{ matrix.name }}.dockerfile

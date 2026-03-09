@@ -2,7 +2,7 @@ FROM ubuntu:22.04 AS base
 WORKDIR /workdir
 
 # Toolchain version argument is required for CI build system tagging
-ARG TOOLCHAIN_VERSION=v3.1.1
+ARG TOOLCHAIN_VERSION=v3.2.3
 
 ARG TARGETARCH
 ARG NCS_VERSION=${TOOLCHAIN_VERSION}
@@ -15,6 +15,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Make sure shell commands fail the build if something goes wrong
 SHELL [ "/bin/bash", "-euxo", "pipefail", "-c" ]
 
+# You can find a table at
+# https://docs.nordicsemi.com/bundle/ncs-3.2.3/page/nrf/installation/recommended_versions.html
+# NCS v3.2.3 requires Zephyr SDK 0.17.0.
+
+ARG ZEPHYR_SDK_VERSION=0.17.0
+ARG CMAKE_VERSION=3.21.0
+
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 RUN apt-get update -y && \
     apt-get upgrade -y && \
@@ -25,8 +35,7 @@ RUN apt-get update -y && \
         unzip \
         clang-format \
         make \
-        cmake \
-        ninja-build \
+        ninja-build\
         gperf \
         device-tree-compiler \
         ccache \
@@ -55,9 +64,14 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/* && \
     locale-gen en_US.UTF-8
 
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
+
+# cmake: install pinned version from official binary release
+RUN CMAKE_ARCH=$(uname -m) && \
+    wget -q "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${CMAKE_ARCH}.sh" \
+        -O /tmp/cmake.sh && \
+    sh /tmp/cmake.sh --prefix=/usr/local --skip-license && \
+    rm /tmp/cmake.sh
+
 
 # --- PYTHON INSTALLATION AND SETUP ---
 
@@ -86,37 +100,8 @@ ENV UV_NO_PROGRESS=1
 ENV UV_NO_DEV=1
 ENV UV_LOCKED=1
 
-# Install pip packages needed for building nRF Connect SDK
-RUN uv pip install \
-    anytree \
-    canopen \
-    cbor2 \
-    click==8.1.3 \
-    cryptography>=44.0.2 \
-    ecdsa \
-    intelhex \
-    packaging \
-    progress \
-    pyelftools>=0.29 \
-    pylint \
-    pyYAML \
-    west \
-    imgtool && \
-    uv cache clean
-
-
 # --- ZEPHYR SDK INSTALLATION ---
 # This replaces the "Nordic Toolchain Manager". 
-# NCS v3.1.1 requires Zephyr SDK 0.17.0. You can find a table at
-# https://docs.nordicsemi.com/bundle/ncs-3.1.1/page/nrf/installation/recommended_versions.html
-
-# Validate that NCS version is supported
-RUN if [ "$NCS_VERSION" != "v3.1.1" ]; then \
-    echo "Error: This Dockerfile only supports NCS_VERSION=v3.1.1, got: $NCS_VERSION" >&2 && \
-    exit 1; \
-    fi
-
-ARG ZEPHYR_SDK_VERSION=0.17.0
 
 # Map Docker's TARGETARCH to Zephyr SDK's architecture naming
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
@@ -128,7 +113,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
         uname -m > /tmp/arch; \
     fi
 
-# Download and extract the SDK
+# Download and extract the zephyr SDK
 # See https://docs.zephyrproject.org/latest/develop/toolchains/zephyr_sdk.html#toolchain-zephyr-sdk
 RUN SDK_ARCH=$(cat /tmp/arch) && \
     SDK_FILE="zephyr-sdk-${ZEPHYR_SDK_VERSION}_linux-${SDK_ARCH}_minimal.tar.xz" && \
@@ -151,6 +136,29 @@ RUN sed -i 's/--show-progress//g' setup.sh && \
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 ENV ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk-${ZEPHYR_SDK_VERSION}
 
+#
+# Python dependencies
+# We need both the ncs and the zephyr dependencies!
+
+# Fetch NCS requirements (ADD for cache invalidation on content change)
+ADD https://raw.githubusercontent.com/nrfconnect/sdk-nrf/${NCS_VERSION}/doc/requirements.txt /tmp/ncs-requirements.txt
+
+# Fetch Zephyr requirements by parsing the pinned revision from the NCS west manifest.
+# Use the GitHub API to discover all requirements*.txt files dynamically (they may change between versions),
+# download them all to /tmp/, then install.
+RUN uv pip install pyyaml && \
+    WEST_YML=$(curl -fsSL "https://raw.githubusercontent.com/nrfconnect/sdk-nrf/${NCS_VERSION}/west.yml") && \
+    ZEPHYR_REVISION=$(echo "${WEST_YML}" | \
+        python3 -c "import sys, yaml; data=yaml.safe_load(sys.stdin); projects=data['manifest']['projects']; zephyr=next(p for p in projects if p['name']=='zephyr'); print(zephyr['revision'])") && \
+    ZEPHYR_REPO=$(echo "${WEST_YML}" | \
+        python3 -c "import sys, yaml; data=yaml.safe_load(sys.stdin); projects=data['manifest']['projects']; zephyr=next(p for p in projects if p['name']=='zephyr'); url=zephyr.get('url', ''); print(url.replace('https://github.com/', '') if url else 'nrfconnect/sdk-zephyr')") && \
+    echo "Zephyr repo: ${ZEPHYR_REPO}, revision: ${ZEPHYR_REVISION}" && \
+    BASE="https://raw.githubusercontent.com/${ZEPHYR_REPO}/${ZEPHYR_REVISION}/scripts" && \
+    curl -fsSL "https://api.github.com/repos/${ZEPHYR_REPO}/contents/scripts?ref=${ZEPHYR_REVISION}" | \
+        python3 -c "import sys, json; [print(f['name']) for f in json.load(sys.stdin) if f['name'].startswith('requirements') and f['name'].endswith('.txt')]" | \
+    while read f; do curl -fsSL "${BASE}/${f}" -o "/tmp/${f}"; done && \
+    uv pip install -r /tmp/ncs-requirements.txt -r /tmp/requirements.txt
+
 WORKDIR /workdir
 
 #
@@ -158,8 +166,3 @@ WORKDIR /workdir
 #
 ENV UV_PROJECT_ENVIRONMENT=/home/venv
 ENV UV_LINK_MODE=copy
-
-
-
-
-
