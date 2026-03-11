@@ -25,7 +25,6 @@ jobs:
       matrix:
         name:
           - ncs
-          - nrf5sdk-15
           - nrf5sdk-17
           - embedded-gcc
           - pylib-emulator
