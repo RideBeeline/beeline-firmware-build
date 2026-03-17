@@ -162,6 +162,11 @@ RUN uv pip install pyyaml && \
 WORKDIR /workdir
 
 #
+# Fix git safe directory issues since the workspace will be mounted as a volume and owned by the host user, which may differ from the container user.
+#
+RUN git config --global --add safe.directory '*'
+
+#
 # Now we set the default uv project environment to home/venv which will be the named volume mount point
 #
 ENV UV_PROJECT_ENVIRONMENT=/home/venv
