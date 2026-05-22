@@ -59,7 +59,8 @@ RUN apt-get update -y && \
         liblzma-dev \
         locales \
         git-lfs \
-        ca-certificates && \
+        ca-certificates \
+        protobuf-compiler && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/* && \
     locale-gen en_US.UTF-8

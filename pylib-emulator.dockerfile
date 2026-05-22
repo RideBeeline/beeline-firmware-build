@@ -26,6 +26,7 @@ RUN apt-get update -y && apt-get -y install \
     libglib2.0-0 \
     cmake \
     lcov \
+    protobuf-compiler \
     && apt-get clean
 
 # Install clang-tidy and clang-format from LLVM apt repos
