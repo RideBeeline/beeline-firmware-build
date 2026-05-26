@@ -59,8 +59,7 @@ RUN apt-get update -y && \
         liblzma-dev \
         locales \
         git-lfs \
-        ca-certificates \
-        protobuf-compiler && \
+        ca-certificates && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/* && \
     locale-gen en_US.UTF-8
@@ -72,6 +71,12 @@ RUN CMAKE_ARCH=$(uname -m) && \
         -O /tmp/cmake.sh && \
     sh /tmp/cmake.sh --prefix=/usr/local --skip-license && \
     rm /tmp/cmake.sh
+
+# install protobuf compiler that's compatible with our pinned protobuf python API (6.33.2)
+ENV PROTOC_VERSION=33.2
+RUN curl -LO "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip" \
+    && unzip "protoc-${PROTOC_VERSION}-linux-x86_64.zip" -d /usr/local \
+    && rm "protoc-${PROTOC_VERSION}-linux-x86_64.zip"
 
 
 # --- PYTHON INSTALLATION AND SETUP ---
@@ -100,6 +105,9 @@ ENV VIRTUAL_ENV=/opt/venv
 ENV UV_NO_PROGRESS=1
 ENV UV_NO_DEV=1
 ENV UV_LOCKED=1
+
+# protobuf compiler dependencies for nanopb. make sure the version is pinned and the same across all build images & python dependencies
+RUN uv pip install protobuf==6.33.2
 
 # --- ZEPHYR SDK INSTALLATION ---
 # This replaces the "Nordic Toolchain Manager". 
