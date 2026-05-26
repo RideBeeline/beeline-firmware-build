@@ -27,6 +27,7 @@ RUN apt-get update -y && apt-get -y install \
     cmake \
     lcov \
     protobuf-compiler \
+    python3-protobuf \
     && apt-get clean
 
 # Install clang-tidy and clang-format from LLVM apt repos
