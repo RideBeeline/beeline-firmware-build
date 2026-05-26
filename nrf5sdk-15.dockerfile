@@ -24,8 +24,7 @@ RUN apt-get update && \
         ninja-build \
         pkg-config \
         libopenblas-dev \
-        libopenblas-base \
-        protobuf-compiler && \
+        libopenblas-base && \
     apt-mark manual libopenblas-base && \
     rm -rf /var/lib/apt/lists/*
 
