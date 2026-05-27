@@ -73,10 +73,18 @@ RUN CMAKE_ARCH=$(uname -m) && \
     rm /tmp/cmake.sh
 
 # install protobuf compiler that's compatible with our pinned protobuf python API (6.33.2)
+# protobuf releases use "x86_64" / "aarch_64" (note the underscore) in artifact names.
 ENV PROTOC_VERSION=33.2
-RUN curl -LO "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip" \
-    && unzip "protoc-${PROTOC_VERSION}-linux-x86_64.zip" -d /usr/local \
-    && rm "protoc-${PROTOC_VERSION}-linux-x86_64.zip"
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        PROTOC_ARCH=x86_64; \
+    elif [ "$TARGETARCH" = "arm64" ]; then \
+        PROTOC_ARCH=aarch_64; \
+    else \
+        echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1; \
+    fi && \
+    curl -fLO "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-${PROTOC_ARCH}.zip" && \
+    unzip "protoc-${PROTOC_VERSION}-linux-${PROTOC_ARCH}.zip" -d /usr/local && \
+    rm "protoc-${PROTOC_VERSION}-linux-${PROTOC_ARCH}.zip"
 
 
 # --- PYTHON INSTALLATION AND SETUP ---
