@@ -8,6 +8,10 @@ ARG TARGETARCH
 ARG DESIRED_PYTHON_VERSION
 ENV PYTHON_VERSION=${DESIRED_PYTHON_VERSION}
 
+# Put the ARM GCC toolchain binaries (arm-none-eabi-readelf, etc.) on PATH so
+# build tools can find them without an absolute path.
+ENV PATH="/usr/local/gcc-arm-none-eabi-9-2020-q2-update/bin:$PATH"
+
 RUN apt-get update && \
 apt-get install -y libgl1 libglib2.0-0 cmake && \
 apt-get clean
