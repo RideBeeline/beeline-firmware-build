@@ -153,6 +153,10 @@ RUN sed -i 's/--show-progress//g' setup.sh && \
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 ENV ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk-${ZEPHYR_SDK_VERSION}
 
+# Put the ARM Zephyr toolchain binaries (arm-zephyr-eabi-readelf, etc.) on PATH
+# so build tools can find them without an absolute path.
+ENV PATH="/opt/zephyr-sdk-${ZEPHYR_SDK_VERSION}/arm-zephyr-eabi/bin:$PATH"
+
 #
 # Python dependencies
 # We need both the ncs and the zephyr dependencies!
