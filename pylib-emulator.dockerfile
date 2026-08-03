@@ -17,6 +17,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # install mingw-w64 cross-compiler so we can build windows binaries too
 # curl for uv
 # and libgl1 for opencv
+# bear captures compile_commands.json; pinned to bookworm's 3.1.1
 RUN apt-get update -y && apt-get -y install \
     mingw-w64 \
     build-essential \
@@ -28,6 +29,7 @@ RUN apt-get update -y && apt-get -y install \
     libglib2.0-0 \
     cmake \
     lcov \
+    bear=3.1.1-1 \
     && apt-get clean
 
 # Install clang-tidy and clang-format from LLVM apt repos

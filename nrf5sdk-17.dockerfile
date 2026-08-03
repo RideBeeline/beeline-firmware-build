@@ -9,8 +9,23 @@ ARG DESIRED_PYTHON_VERSION
 ENV PYTHON_VERSION=${DESIRED_PYTHON_VERSION}
 
 RUN apt-get update && \
-apt-get install -y libgl1 libglib2.0-0 cmake && \
+apt-get install -y libgl1 libglib2.0-0 cmake bzip2 && \
 apt-get clean
+
+# bear (compile_commands.json capture): 
+# 3.1.6 is the newest conda-forge bear that runs on this focal
+# base - 4.x requires glibc >= 2.33 and focal has 2.31. 
+RUN set -eux; \
+    case "$TARGETARCH" in \
+      amd64) MAMBA_ARCH=linux-64 ;; \
+      arm64) MAMBA_ARCH=linux-aarch64 ;; \
+      *) echo "unsupported arch: $TARGETARCH" >&2; exit 1 ;; \
+    esac; \
+    curl -fLs "https://micro.mamba.pm/api/micromamba/${MAMBA_ARCH}/latest" \
+      | tar -xj -C /usr/local/bin --strip-components=1 bin/micromamba; \
+    MAMBA_ROOT_PREFIX=/opt/mamba micromamba create -y -p /opt/bear -c conda-forge bear=3.1.6; \
+    MAMBA_ROOT_PREFIX=/opt/mamba micromamba clean -a -y
+ENV PATH="/opt/bear/bin:$PATH"
 
 # install protobuf compiler that's compatible with our pinned protobuf python API (6.33.2)
 # protobuf releases use "x86_64" / "aarch_64" (note the underscore) in artifact names.
