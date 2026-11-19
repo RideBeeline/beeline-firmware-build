@@ -2,7 +2,7 @@ FROM ubuntu:22.04 AS base
 WORKDIR /workdir
 
 # Toolchain version argument is required for CI build system tagging
-ARG TOOLCHAIN_VERSION=v3.3.0
+ARG TOOLCHAIN_VERSION=v3.4.2
 
 ARG TARGETARCH
 ARG NCS_VERSION=${TOOLCHAIN_VERSION}
@@ -16,10 +16,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 SHELL [ "/bin/bash", "-euxo", "pipefail", "-c" ]
 
 # You can find a table at
-# https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/installation/recommended_versions.html
-# NCS v3.3.0 requires Zephyr SDK 0.17.0.
+# https://docs.nordicsemi.com/bundle/ncs-3.4.2/page/nrf/installation/recommended_versions.html
+# NCS v3.4.2 requires Zephyr SDK 1.0.x (sdk-zephyr ncs-v3.4.2 SDK_VERSION = 1.0.1;
+# Zephyr's CMake rejects 0.17.x).
 
-ARG ZEPHYR_SDK_VERSION=0.17.0
+ARG ZEPHYR_SDK_VERSION=1.0.1
 ARG CMAKE_VERSION=3.21.0
 
 ENV LANG=en_US.UTF-8
@@ -155,7 +156,8 @@ ENV ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk-${ZEPHYR_SDK_VERSION}
 
 # Put the ARM Zephyr toolchain binaries (arm-zephyr-eabi-readelf, etc.) on PATH
 # so build tools can find them without an absolute path.
-ENV PATH="/opt/zephyr-sdk-${ZEPHYR_SDK_VERSION}/arm-zephyr-eabi/bin:$PATH"
+# Zephyr SDK 1.0 moved the GNU toolchains under gnu/.
+ENV PATH="/opt/zephyr-sdk-${ZEPHYR_SDK_VERSION}/gnu/arm-zephyr-eabi/bin:$PATH"
 
 #
 # Python dependencies
